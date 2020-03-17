@@ -29,7 +29,11 @@ namespace SPD_Lab_1
     {
         static void Main(string[] args)
         {
-            String path = "C:\\Users\\WK\\Documents\\PWr\\SPD_Lab\\Pliki\\rpq";
+            String p = System.Reflection.Assembly.GetEntryAssembly().Location;
+            p = p.Substring(0, p.IndexOf("SPD_Lab"));
+            Console.WriteLine("Starting ...");
+            String path = Path.Combine(p, "SPD_Lab\\Pliki\\rpq");
+            Console.WriteLine("Path: " + path);
             String[] files = { "data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt", };
 
             foreach (String filename in files)
