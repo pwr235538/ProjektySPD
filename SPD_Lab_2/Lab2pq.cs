@@ -5,29 +5,87 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 
-namespace Lab2ns
+namespace SPD_Lab_2pq
 {
     public class Task : IComparable<Task>
     {
         public int r, p, q;
+        public char sortCriterium;
 
-        public Task(int _r, int _p, int _q)
+        public Task(int _r, int _p, int _q, char sc)
         {
             r = _r;
             p = _p;
             q = _q;
+            sortCriterium = sc;
         }
 
         public int CompareTo(Task other)
         {
-            if (this.r <= other.r) return -1;
-            return 1;
+            if(sortCriterium == 'r')
+            {
+                if (this.r <= other.r) return -1;
+                return 1;
+            }
+            else
+            {
+                if (this.q <= other.q) return -1;
+                return 1;
+            }
+        }
+
+        public new string ToString()
+        {
+            return "Task - r: " + r + ", p: " + p + ", q: " + q;
+        }
+
+        public static void PrintTaskList(List<Task> l)
+        {
+            foreach (Task t in l) Console.WriteLine(t.ToString());
         }
     }
 
-    class Lab1
+    public class TaskPQ : List<Task>
     {
-        static void Main(string[] args)
+        public new void Add(Task t)
+        {
+            if (this.Count == 0) base.Add(t);
+            else
+            {
+                for (int i = 0; i < this.Count; i++)
+                {
+                    if (t.CompareTo(this[i]) == -1)
+                    {
+                        this.Insert(i, t);
+                        return;
+                    }
+                }
+                base.Add(t);
+            }
+        }
+
+        public void Add(Task t, char newSC)
+        {
+            t.sortCriterium = newSC;
+            if (this.Count == 0) base.Add(t);
+            else
+            {
+                for (int i = 0; i < this.Count; i++)
+                {
+                    if (t.CompareTo(this[i]) == -1)
+                    {
+                        this.Insert(i, t);
+                        return;
+                    }
+                }
+                base.Add(t);
+            }
+        }
+    }
+
+    class SPD_Lab_2
+    {
+        public static void MainPQ()
         {
             String p = System.Reflection.Assembly.GetEntryAssembly().Location;
             p = p.Substring(0,p.IndexOf("SPD_Lab"));
@@ -43,8 +101,8 @@ namespace Lab2ns
                 //Console.WriteLine("Read file " + filename + " completed.");
 
                 int k = 1;
-                List<Task> tasksG = new List<Task>();
-                List<Task> tasksN = new List<Task>();
+                var tasksG = new TaskPQ();
+                var tasksN = new TaskPQ();
                 for (int i = 1; i < lines.Length; i++)
                 {
                     lines[i] = lines[i].Replace("\t", " ");
@@ -55,25 +113,27 @@ namespace Lab2ns
                     if (lines[i].StartsWith("")) lines[i] = lines[i].TrimStart(' ');
 
                     String[] tokens = lines[i].Split(' '); ;
-                    tasksN.Add(new Task(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2])));
+                    tasksN.Add(new Task(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2]), 'r'));
                 }
-                int t = GetMinR(tasksN).r;
+                //Task.PrintTaskList(tasksN); Console.ReadLine();
+                int t = tasksN[0].r;
                 List<Task> tasksPi = new List<Task>();
 
-
+                //int counter = 0;
                 while (tasksN.Count > 0 || tasksG.Count > 0)
                 {
                     Task minTask; 
 
-                    while (tasksN.Count > 0 && (minTask = GetMinR(tasksN)).r <= t)
+                    while (tasksN.Count > 0 && (minTask = tasksN[0]).r <= t)
                     {
-                        tasksG.Add(minTask);
+                        //if (counter++ == 0) Console.WriteLine("MinTask first: q " + minTask.q + " p " + minTask.p);
+                        tasksG.Add(minTask, 'q');
                         tasksN.Remove(minTask);
                     }
 
                     if(tasksG.Count > 0)
                     {
-                        Task maxTask = GetMaxQ(tasksG);
+                        Task maxTask = tasksG[tasksG.Count - 1];
                         tasksG.Remove(maxTask);
                         tasksPi.Add(maxTask);
                         t = t + maxTask.p;
@@ -81,46 +141,15 @@ namespace Lab2ns
                     }
                     else
                     {
-                        t = GetMinR(tasksN).r;
+                        t = tasksN[0].r;
                     }
                 }
 
 
                 
-                Console.WriteLine("\nWyniki dla pliku: " + filename);
+                Console.WriteLine("\nWyniki dla pliku: " + filename + " - wersja z kolejka priorytetowa");
                 //Console.WriteLine("k: " + k + ", t: " + t + ", Pi count: " + tasksPi.Count);
                 Console.WriteLine("cq: " + Calculate(tasksPi));
-            }
-
-            Console.Write("\nWpisz cokolwiek i wcisnij Enter aby zakonczyc: ");
-            Console.Read();
-        }
-
-        static Task GetMinR(List<Task> tasks)
-        {
-            if (tasks.Count == 0 || tasks == null) return null;
-            else
-            {
-                Task min = tasks[0];
-                foreach(Task t in tasks)
-                {
-                    if (t.r < min.r) min = t;
-                }
-                return min;
-            }
-        }
-
-        static Task GetMaxQ(List<Task> tasks)
-        {
-            if (tasks.Count == 0 || tasks == null) return null;
-            else
-            {
-                Task max = tasks[0];
-                foreach (Task t in tasks)
-                {
-                    if (t.q > max.q) max = t;
-                }
-                return max;
             }
         }
 
