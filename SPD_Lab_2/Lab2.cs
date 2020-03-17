@@ -29,13 +29,19 @@ namespace Lab2ns
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Starting ...");
             String path = "C:\\Users\\WK\\Documents\\PWr\\SPD_Lab\\Pliki\\rpq";
             String[] files = { "data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt", };
 
             foreach (String filename in files)
             {
-                List<Task> tasks = new List<Task>();
+                Console.WriteLine("\nBeginning file reading ...");
                 String[] lines = File.ReadAllLines(Path.Combine(path, filename));
+                Console.WriteLine("Read file " + filename + " completed.");
+
+                int k = 1;
+                List<Task> tasksG = new List<Task>();
+                List<Task> tasksN = new List<Task>();
                 for (int i = 1; i < lines.Length; i++)
                 {
                     lines[i] = lines[i].Replace("\t", " ");
@@ -46,58 +52,105 @@ namespace Lab2ns
                     if (lines[i].StartsWith("")) lines[i] = lines[i].TrimStart(' ');
 
                     String[] tokens = lines[i].Split(' '); ;
-                    //Console.WriteLine(lines[i] + "from file: " + filename);
-                    tasks.Add(new Task(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2])));
+                    tasksN.Add(new Task(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2])));
+                }
+                int t = GetMinR(tasksN).r;
+                List<Task> tasksPi = new List<Task>();
+
+                //Console.WriteLine("Beginning while loop ...");
+                //int counter = 0;
+                while (tasksN.Count > 0 || tasksG.Count > 0)
+                {
+                    //if (++counter % 10 == 0) Console.WriteLine("While iteration: " + counter);
+                    Task minTask; 
+
+                    while (tasksN.Count > 0 && (minTask = GetMinR(tasksN)).r <= t)
+                    {
+                        //Console.WriteLine("\nPRE - tasksN count: " + tasksN.Count + ", tasksG count: " + tasksG.Count);
+                        tasksG.Add(minTask);
+                        tasksN.Remove(minTask);
+                        //Console.WriteLine("POST - tasksN count: " + tasksN.Count + ", tasksG count: " + tasksG.Count);
+                        //Console.Write("\nWpisz cokolwiek i wcisnij Enter aby kontynuowac: ");
+                        //Console.Read();
+                    }
+
+                    if(tasksG.Count > 0)
+                    {
+                        Task maxTask = GetMaxR(tasksG);
+                        tasksG.Remove(maxTask);
+                        tasksPi.Add(maxTask);
+                        t = t + maxTask.p;
+                        k++;
+                    }
+                    else
+                    {
+                        t = GetMinR(tasksN).r;
+                    }
                 }
 
-                /*
-                if(filename == "data10.txt")
-                {
-                    foreach(Task t in tasks) Console.WriteLine("r: " + t.r + " p: " + t.p + " q: " + t.q);
-                    tasks.Sort();
-                    Console.WriteLine("soooooort");
-                    foreach (Task t in tasks) Console.WriteLine("r: " + t.r + " p: " + t.p + " q: " + t.q);
-                    Console.Read();
-                } */
 
-                List<int> s = new List<int>();
-                List<int> c = new List<int>();
-                List<int> cq = new List<int>();
-                s.Add(tasks[0].r);
-                c.Add(s[0] + tasks[0].p);
-                cq.Add(c[0] + tasks[0].q);
+                
+                Console.WriteLine("\nWyniki dla pliku: " + filename);
+                Console.WriteLine("k: " + k + ", t: " + t + ", Pi count: " + tasksPi.Count);
+                Console.WriteLine("cq: " + Calculate(tasksPi));
+                //Console.Write("\nWpisz cokolwiek i wcisnij Enter aby kontynuowac: ");
+                //Console.Read();
 
-                for (int i = 1; i < tasks.Count; i++)
-                {
-                    //Console.WriteLine("r: " + tasks[i].r + " p: " + tasks[i].p + " q: " + tasks[i].q);
-                    s.Add(Math.Max(tasks[i].r, c[i - 1]));
-                    c.Add(s[i] + tasks[i].p);
-                    cq.Add(Math.Max(cq[i - 1], c[i] + tasks[i].q));
-                }
-                Console.WriteLine("Wyniki dla pliku: " + filename);
-                Console.WriteLine("c ostatnie: " + cq[c.Count - 1]);
-
-
-                tasks.Sort();
-                s = new List<int>();
-                c = new List<int>();
-                cq = new List<int>();
-                s.Add(tasks[0].r);
-                c.Add(s[0] + tasks[0].p);
-                cq.Add(c[0] + tasks[0].q);
-                for (int i = 1; i < tasks.Count; i++)
-                {
-                    //Console.WriteLine("r: " + tasks[i].r + " p: " + tasks[i].p + " q: " + tasks[i].q);
-                    s.Add(Math.Max(tasks[i].r, c[i - 1]));
-                    c.Add(s[i] + tasks[i].p);
-                    cq.Add(Math.Max(cq[i - 1], c[i] + tasks[i].q));
-                }
-                Console.WriteLine("Wyniki zadan posortowanych dla pliku: " + filename);
-                Console.WriteLine("c ostatnie: " + cq[c.Count - 1] + "\n");
             }
 
             Console.Write("\nWpisz cokolwiek i wcisnij Enter aby zakonczyc: ");
             Console.Read();
+        }
+
+        static Task GetMinR(List<Task> tasks)
+        {
+            if (tasks.Count == 0 || tasks == null) return null;
+            else
+            {
+                Task min = tasks[0];
+                foreach(Task t in tasks)
+                {
+                    if (t.r < min.r) min = t;
+                }
+                return min;
+            }
+        }
+
+        static Task GetMaxR(List<Task> tasks)
+        {
+            if (tasks.Count == 0 || tasks == null) return null;
+            else
+            {
+                Task max = tasks[0];
+                foreach (Task t in tasks)
+                {
+                    if (t.r > max.r) max = t;
+                }
+                return max;
+            }
+        }
+
+        static int Calculate(List<Task> tasksPi)
+        {
+            if (tasksPi.Count == 0 || tasksPi == null) return -1;
+            else
+            {
+                List<int> s = new List<int>();
+                List<int> c = new List<int>();
+                int cq = 0;
+                s.Add(tasksPi[0].r);
+                c.Add(s[0] + tasksPi[0].p);
+                cq = c[0] + tasksPi[0].q;
+
+                for (int i = 1; i < tasksPi.Count; i++)
+                {
+                    s.Add(Math.Max(tasksPi[i].r, c[i - 1]));
+                    c.Add(s[i] + tasksPi[i].p);
+                    cq = Math.Max(cq, c[i] + tasksPi[i].q);
+                }
+
+                return cq;
+            }
         }
     }
 }
