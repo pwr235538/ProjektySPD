@@ -31,16 +31,16 @@ namespace Lab2ns
         {
             String p = System.Reflection.Assembly.GetEntryAssembly().Location;
             p = p.Substring(0,p.IndexOf("SPD_Lab"));
-            Console.WriteLine("Starting ...");
+            //Console.WriteLine("Starting ...");
             String path = Path.Combine(p, "SPD_Lab\\Pliki\\rpq");
-            Console.WriteLine("Path: " + path);
+            //Console.WriteLine("Path: " + path);
             String[] files = { "data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt", };
 
             foreach (String filename in files)
             {
-                Console.WriteLine("\nBeginning file reading ...");
+                //Console.WriteLine("\nBeginning file reading ...");
                 String[] lines = File.ReadAllLines(Path.Combine(path, filename));
-                Console.WriteLine("Read file " + filename + " completed.");
+                //Console.WriteLine("Read file " + filename + " completed.");
 
                 int k = 1;
                 List<Task> tasksG = new List<Task>();
@@ -60,26 +60,20 @@ namespace Lab2ns
                 int t = GetMinR(tasksN).r;
                 List<Task> tasksPi = new List<Task>();
 
-                //Console.WriteLine("Beginning while loop ...");
-                //int counter = 0;
+
                 while (tasksN.Count > 0 || tasksG.Count > 0)
                 {
-                    //if (++counter % 10 == 0) Console.WriteLine("While iteration: " + counter);
                     Task minTask; 
 
                     while (tasksN.Count > 0 && (minTask = GetMinR(tasksN)).r <= t)
                     {
-                        //Console.WriteLine("\nPRE - tasksN count: " + tasksN.Count + ", tasksG count: " + tasksG.Count);
                         tasksG.Add(minTask);
                         tasksN.Remove(minTask);
-                        //Console.WriteLine("POST - tasksN count: " + tasksN.Count + ", tasksG count: " + tasksG.Count);
-                        //Console.Write("\nWpisz cokolwiek i wcisnij Enter aby kontynuowac: ");
-                        //Console.Read();
                     }
 
                     if(tasksG.Count > 0)
                     {
-                        Task maxTask = GetMaxR(tasksG);
+                        Task maxTask = GetMaxQ(tasksG);
                         tasksG.Remove(maxTask);
                         tasksPi.Add(maxTask);
                         t = t + maxTask.p;
@@ -94,11 +88,8 @@ namespace Lab2ns
 
                 
                 Console.WriteLine("\nWyniki dla pliku: " + filename);
-                Console.WriteLine("k: " + k + ", t: " + t + ", Pi count: " + tasksPi.Count);
+                //Console.WriteLine("k: " + k + ", t: " + t + ", Pi count: " + tasksPi.Count);
                 Console.WriteLine("cq: " + Calculate(tasksPi));
-                //Console.Write("\nWpisz cokolwiek i wcisnij Enter aby kontynuowac: ");
-                //Console.Read();
-
             }
 
             Console.Write("\nWpisz cokolwiek i wcisnij Enter aby zakonczyc: ");
@@ -119,7 +110,7 @@ namespace Lab2ns
             }
         }
 
-        static Task GetMaxR(List<Task> tasks)
+        static Task GetMaxQ(List<Task> tasks)
         {
             if (tasks.Count == 0 || tasks == null) return null;
             else
@@ -127,7 +118,7 @@ namespace Lab2ns
                 Task max = tasks[0];
                 foreach (Task t in tasks)
                 {
-                    if (t.r > max.r) max = t;
+                    if (t.q > max.q) max = t;
                 }
                 return max;
             }
