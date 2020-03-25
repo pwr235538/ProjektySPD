@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 
 namespace SPD_Lab_2org
@@ -39,6 +40,9 @@ namespace SPD_Lab_2org
     {
         public static void MainOrg()
         {
+            Stopwatch sw = new Stopwatch();
+
+
             String p = System.Reflection.Assembly.GetEntryAssembly().Location;
             p = p.Substring(0,p.IndexOf("SPD_Lab"));
             //Console.WriteLine("Starting ...");
@@ -46,6 +50,7 @@ namespace SPD_Lab_2org
             //Console.WriteLine("Path: " + path);
             String[] files = { "data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt"};
             var wyniki = new List<int>();
+            var wynikiCzas = new List<TimeSpan>();
 
             foreach (String filename in files)
             {
@@ -73,6 +78,7 @@ namespace SPD_Lab_2org
                 List<Task> tasksPi = new List<Task>();
 
                 //int counter = 0;
+                sw.Start();
                 while (tasksN.Count > 0 || tasksG.Count > 0)
                 {
                     Task minTask; 
@@ -99,15 +105,20 @@ namespace SPD_Lab_2org
                 }
 
 
-                
+
                 //Console.WriteLine("\nWyniki dla pliku: " + filename + " - wersja z znajdywaniem min i max");
                 //Console.WriteLine("k: " + k + ", t: " + t + ", Pi count: " + tasksPi.Count);
                 //Console.WriteLine("cq: " + Calculate(tasksPi));
+                sw.Stop();
+                wynikiCzas.Add(sw.Elapsed);
+                sw.Reset();
                 wyniki.Add(Calculate(tasksPi));
             }
 
-            Console.WriteLine("Algorytm z podstawowy, wyniki: ");
+            Console.WriteLine("Algorytm z podstawowy, wyniki + czasy: ");
             foreach (int w in wyniki) Console.Write(w + "  ");
+            Console.WriteLine();
+            foreach (TimeSpan t in wynikiCzas) Console.Write(t.TotalMilliseconds + "  ");
             Console.WriteLine();
             Console.WriteLine();
         }

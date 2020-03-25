@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 
 namespace SPD_Lab_2pq_podzial
@@ -87,11 +88,15 @@ namespace SPD_Lab_2pq_podzial
     {
         public static void MainPQ_podzial()
         {
+            Stopwatch sw = new Stopwatch();
+
+
             String p = System.Reflection.Assembly.GetEntryAssembly().Location;
             p = p.Substring(0,p.IndexOf("SPD_Lab"));
             String path = Path.Combine(p, "SPD_Lab\\Pliki\\rpq");
             String[] files = { "data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt" };
             var wyniki = new List<int>();
+            var wynikiCzas = new List<TimeSpan>();
 
             foreach (String filename in files)
             {
@@ -119,6 +124,7 @@ namespace SPD_Lab_2pq_podzial
                 int Cmax = 0;
                 var currentTask = new Task(-1, -1, Int32.MaxValue, 'r');
 
+                sw.Start();
                 while (tasksN.Count > 0 || tasksG.Count > 0)
                 {
                     Task minTask = new Task(-1, -1, -1, 'r'); 
@@ -153,11 +159,17 @@ namespace SPD_Lab_2pq_podzial
 
                 //Console.WriteLine("\nWyniki dla pliku: " + filename + " - wersja z kolejka priorytetowa [+ PODZIAL]");
                 //Console.WriteLine("cq: " + Cmax);
+                sw.Stop();
+                wynikiCzas.Add(sw.Elapsed);
+                sw.Reset();
                 wyniki.Add(Cmax);
             }
 
-            Console.WriteLine("Algorytm z kolejka priorytetowa i podzialem zadan, wyniki: ");
+
+            Console.WriteLine("Algorytm z kolejka priorytetowa i podzialem zadan, wyniki + czasy: ");
             foreach (int w in wyniki) Console.Write(w + "  ");
+            Console.WriteLine();
+            foreach (TimeSpan t in wynikiCzas) Console.Write(t.TotalMilliseconds + "  ");
             Console.WriteLine();
             Console.WriteLine();
         }
