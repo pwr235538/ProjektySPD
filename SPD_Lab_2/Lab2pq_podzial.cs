@@ -5,23 +5,33 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 
-namespace SPD_Lab_2org_podzial
+namespace SPD_Lab_2pq_podzial
 {
     public class Task : IComparable<Task>
     {
         public int r, p, q;
+        public char sortCriterium;
 
-        public Task(int _r, int _p, int _q)
+        public Task(int _r, int _p, int _q, char sc)
         {
             r = _r;
             p = _p;
             q = _q;
+            sortCriterium = sc;
         }
 
         public int CompareTo(Task other)
         {
-            if (this.r <= other.r) return -1;
-            return 1;
+            if(sortCriterium == 'r')
+            {
+                if (this.r <= other.r) return -1;
+                return 1;
+            }
+            else
+            {
+                if (this.q <= other.q) return -1;
+                return 1;
+            }
         }
 
         public new string ToString()
@@ -35,9 +45,47 @@ namespace SPD_Lab_2org_podzial
         }
     }
 
+    public class TaskPQ : List<Task>
+    {
+        public new void Add(Task t)
+        {
+            if (this.Count == 0) base.Add(t);
+            else
+            {
+                for (int i = 0; i < this.Count; i++)
+                {
+                    if (t.CompareTo(this[i]) == -1)
+                    {
+                        this.Insert(i, t);
+                        return;
+                    }
+                }
+                base.Add(t);
+            }
+        }
+
+        public void Add(Task t, char newSC)
+        {
+            t.sortCriterium = newSC;
+            if (this.Count == 0) base.Add(t);
+            else
+            {
+                for (int i = 0; i < this.Count; i++)
+                {
+                    if (t.CompareTo(this[i]) == -1)
+                    {
+                        this.Insert(i, t);
+                        return;
+                    }
+                }
+                base.Add(t);
+            }
+        }
+    }
+
     class SPD_Lab_2
     {
-        public static void MainOrg_podzial()
+        public static void MainPQ_podzial()
         {
             String p = System.Reflection.Assembly.GetEntryAssembly().Location;
             p = p.Substring(0,p.IndexOf("SPD_Lab"));
@@ -51,8 +99,8 @@ namespace SPD_Lab_2org_podzial
                 //Console.WriteLine("Read file " + filename + " completed.");
 
                 int k = 1;
-                List<Task> tasksG = new List<Task>();
-                List<Task> tasksN = new List<Task>();
+                var tasksG = new TaskPQ();
+                var tasksN = new TaskPQ();
                 for (int i = 1; i < lines.Length; i++)
                 {
                     lines[i] = lines[i].Replace("\t", " ");
@@ -63,23 +111,23 @@ namespace SPD_Lab_2org_podzial
                     if (lines[i].StartsWith("")) lines[i] = lines[i].TrimStart(' ');
 
                     String[] tokens = lines[i].Split(' '); ;
-                    tasksN.Add(new Task(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2])));
+                    tasksN.Add(new Task(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2]), 'r'));
                 }
                 int t = 0;
                 int l = 0;
                 int Cmax = 0;
-                var currentTask = new Task (-1, -1, Int32.MaxValue);
+                var currentTask = new Task(-1, -1, Int32.MaxValue, 'r');
 
                 while (tasksN.Count > 0 || tasksG.Count > 0)
                 {
-                    Task minTask = new Task(-1, -1, -1); //poniważ warunek w linii 103 wariuje
+                    Task minTask = new Task(-1, -1, -1, 'r'); 
 
-                    while (tasksN.Count > 0 && (minTask = GetMinR(tasksN)).r <= t)
+                    while (tasksN.Count > 0 && (minTask = tasksN[0]).r <= t)
                     {
-                        tasksG.Add(minTask);
+                        tasksG.Add(minTask, 'q');
                         tasksN.Remove(minTask);
 
-                        if(l != 0 && minTask.q > currentTask.q)
+                        if (l != 0 && minTask.q > currentTask.q)
                             currentTask.p = t - minTask.r;
 
                         if (currentTask.p > 0 && tasksG.Contains(currentTask))
@@ -88,53 +136,26 @@ namespace SPD_Lab_2org_podzial
 
                     if(tasksG.Count > 0)
                     {
-                        Task maxTask = GetMaxQ(tasksG);
+                        Task maxTask = tasksG[tasksG.Count - 1];
                         tasksG.Remove(maxTask);
 
-                        if(minTask != null) currentTask = minTask;
+                        if (minTask != null) currentTask = minTask;
                         t = t + minTask.p;
                         Cmax = Math.Max(Cmax, t + minTask.q);
                     }
                     else
                     {
-                        t = GetMinR(tasksN).r;
+                        if (tasksN.Count > 0) t = tasksN[0].r;
+                        else t = 0;
                     }
                 }
-                
-                Console.WriteLine("\nWyniki dla pliku: " + filename + " - wersja z znajdywaniem min i max [ + PODZIAL]");
+
+                Console.WriteLine("\nWyniki dla pliku: " + filename + " - wersja z kolejka priorytetowa [+ PODZIAL]");
                 Console.WriteLine("cq: " + Cmax);
             }
         }
 
-        static Task GetMinR(List<Task> tasks)
-        {
-            if (tasks.Count == 0 || tasks == null) return new Task(0, 0, 0);
-            else
-            {
-                Task min = tasks[0];
-                foreach (Task t in tasks)
-                {
-                    if (t.r < min.r) min = t;
-                }
-                return min;
-            }
-        }
-
-        static Task GetMaxQ(List<Task> tasks)
-        {
-            if (tasks.Count == 0 || tasks == null) return null;
-            else
-            {
-                Task max = tasks[0];
-                foreach (Task t in tasks)
-                {
-                    if (t.q > max.q) max = t;
-                }
-                return max;
-            }
-        }
-
-        static int Calculate(List<Task> tasksPi)
+        /* static int Calculate(List<Task> tasksPi)
         {
             if (tasksPi.Count == 0 || tasksPi == null) return -1;
             else
@@ -155,6 +176,6 @@ namespace SPD_Lab_2org_podzial
 
                 return cq;
             }
-        }
+        } */
     }
 }

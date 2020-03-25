@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Lab2org_podzial.cs" />
+    <Compile Include="Lab2pq_podzial.cs" />
     <Compile Include="Lab2pq.cs" />
     <Compile Include="Lab2org.cs" />
     <Compile Include="Lab2main.cs" />
