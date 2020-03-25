@@ -42,7 +42,8 @@ namespace SPD_Lab_2org_podzial
             String p = System.Reflection.Assembly.GetEntryAssembly().Location;
             p = p.Substring(0,p.IndexOf("SPD_Lab"));
             String path = Path.Combine(p, "SPD_Lab\\Pliki\\rpq");
-            String[] files = { "data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt", };
+            String[] files = { "data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt"};
+            var wyniki = new List<int>();
 
             foreach (String filename in files)
             {
@@ -72,7 +73,7 @@ namespace SPD_Lab_2org_podzial
 
                 while (tasksN.Count > 0 || tasksG.Count > 0)
                 {
-                    Task minTask = new Task(-1, -1, -1); //poniważ warunek w linii 103 wariuje
+                    Task minTask = new Task(-1, -1, -1); //poniważ warunek w linii 95 wariuje
 
                     while (tasksN.Count > 0 && (minTask = GetMinR(tasksN)).r <= t)
                     {
@@ -100,10 +101,16 @@ namespace SPD_Lab_2org_podzial
                         t = GetMinR(tasksN).r;
                     }
                 }
-                
-                Console.WriteLine("\nWyniki dla pliku: " + filename + " - wersja z znajdywaniem min i max [ + PODZIAL]");
-                Console.WriteLine("cq: " + Cmax);
+
+                //Console.WriteLine("\nWyniki dla pliku: " + filename + " - wersja z znajdywaniem min i max [ + PODZIAL]");
+                //Console.WriteLine("cq: " + Cmax);
+                wyniki.Add(Cmax);
             }
+
+            Console.WriteLine("Algorytm podstawowy z podzialem zadan, wyniki: ");
+            foreach (int w in wyniki) Console.Write(w + "  ");
+            Console.WriteLine();
+            Console.WriteLine();
         }
 
         static Task GetMinR(List<Task> tasks)

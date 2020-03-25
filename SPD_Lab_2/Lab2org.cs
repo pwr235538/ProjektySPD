@@ -44,7 +44,8 @@ namespace SPD_Lab_2org
             //Console.WriteLine("Starting ...");
             String path = Path.Combine(p, "SPD_Lab\\Pliki\\rpq");
             //Console.WriteLine("Path: " + path);
-            String[] files = { "data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt", };
+            String[] files = { "data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt"};
+            var wyniki = new List<int>();
 
             foreach (String filename in files)
             {
@@ -99,10 +100,16 @@ namespace SPD_Lab_2org
 
 
                 
-                Console.WriteLine("\nWyniki dla pliku: " + filename + " - wersja z znajdywaniem min i max");
+                //Console.WriteLine("\nWyniki dla pliku: " + filename + " - wersja z znajdywaniem min i max");
                 //Console.WriteLine("k: " + k + ", t: " + t + ", Pi count: " + tasksPi.Count);
-                Console.WriteLine("cq: " + Calculate(tasksPi));
+                //Console.WriteLine("cq: " + Calculate(tasksPi));
+                wyniki.Add(Calculate(tasksPi));
             }
+
+            Console.WriteLine("Algorytm z podstawowy, wyniki: ");
+            foreach (int w in wyniki) Console.Write(w + "  ");
+            Console.WriteLine();
+            Console.WriteLine();
         }
 
         static Task GetMinR(List<Task> tasks)

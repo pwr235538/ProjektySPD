@@ -90,7 +90,8 @@ namespace SPD_Lab_2pq_podzial
             String p = System.Reflection.Assembly.GetEntryAssembly().Location;
             p = p.Substring(0,p.IndexOf("SPD_Lab"));
             String path = Path.Combine(p, "SPD_Lab\\Pliki\\rpq");
-            String[] files = { "data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt", };
+            String[] files = { "data10.txt", "data20.txt", "data50.txt", "data100.txt", "data200.txt", "data500.txt" };
+            var wyniki = new List<int>();
 
             foreach (String filename in files)
             {
@@ -150,9 +151,15 @@ namespace SPD_Lab_2pq_podzial
                     }
                 }
 
-                Console.WriteLine("\nWyniki dla pliku: " + filename + " - wersja z kolejka priorytetowa [+ PODZIAL]");
-                Console.WriteLine("cq: " + Cmax);
+                //Console.WriteLine("\nWyniki dla pliku: " + filename + " - wersja z kolejka priorytetowa [+ PODZIAL]");
+                //Console.WriteLine("cq: " + Cmax);
+                wyniki.Add(Cmax);
             }
+
+            Console.WriteLine("Algorytm z kolejka priorytetowa i podzialem zadan, wyniki: ");
+            foreach (int w in wyniki) Console.Write(w + "  ");
+            Console.WriteLine();
+            Console.WriteLine();
         }
 
         /* static int Calculate(List<Task> tasksPi)
