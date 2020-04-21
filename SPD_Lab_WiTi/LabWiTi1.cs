@@ -83,7 +83,7 @@ namespace SPD_Lab_WiTi
             //Console.WriteLine("Starting ...");
             String path = Path.Combine(p, "SPD_Lab\\Pliki\\witi");
             //Console.WriteLine("Path: " + path);
-            String[] files = { "data11.txt" };//, "data11.txt", "data12.txt", "data13.txt", "data14.txt" };//, "data005.txt", "data006.txt" };
+            String[] files = { "data13.txt" };//, "data11.txt", "data12.txt", "data13.txt", "data14.txt" };//, "data005.txt", "data006.txt" };
 
             foreach (String filename in files)
             {
@@ -92,7 +92,7 @@ namespace SPD_Lab_WiTi
 
                 //Console.WriteLine("\nBeginning file reading ...");
                 String[] lines = File.ReadAllLines(Path.Combine(path, filename));
-                //Console.WriteLine("Read file " + filename + " completed.");
+                Console.WriteLine("\n\n==================================================\nRead file " + filename + " completed.");
 
                 for (int i = 0; i < lines.Length; i++)
                 {
@@ -117,40 +117,41 @@ namespace SPD_Lab_WiTi
                     }
                 }
 
-                foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
+                bool printData = false, doopt = true;
+
+                if (printData) foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
                 Console.WriteLine("1234, F = " + F(tasks));
                 Console.WriteLine();
 
-                //foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
-                Console.WriteLine("1234 indices, F = " + F(tasks, GenerateIndecesList(n)));
-                Console.WriteLine();
-
                 tasks.Sort();
-                foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
+                if(printData) foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
                 Console.WriteLine("SortD, F = " + F(tasks));
                 Console.WriteLine();
 
                 tasks.Sort(new Task.MyComparer());
-                foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
+                if (printData) foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
                 Console.WriteLine("My1, F = " + F(tasks));
                 Console.WriteLine();
 
-                // Doesn't work that well:
-                //tasks.Sort(new Task.MyComparer2());
-                //foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
-                //Console.WriteLine("My2, F = " + F(tasks));
-                //Console.WriteLine();
+                //Doesn't work that well:
+                tasks.Sort(new Task.MyComparer2());
+                if (printData) foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
+                Console.WriteLine("My2, F = " + F(tasks));
+                Console.WriteLine();
 
                 //Below is a much improved version:
                 //List<Task> bestOrderedTasks = FindOptimalThroughPZ(tasks);
-                //foreach (Task ttt in bestOrderedTasks) Console.WriteLine(ttt.ToString());
+                //if(printData) foreach (Task ttt in bestOrderedTasks) Console.WriteLine(ttt.ToString());
                 //Console.WriteLine("OptimalThroughPZ, F = " + F(bestOrderedTasks));
                 //Console.WriteLine();
 
-                List<Task> bestOrderedTasks2 = ImprovedFindOptimalThroughPZ(tasks);
-                foreach (Task ttt in bestOrderedTasks2) Console.WriteLine(ttt.ToString());
-                Console.WriteLine("ImprovedOptimalThroughPZ, F = " + F(bestOrderedTasks2));
-                Console.WriteLine();
+                if (doopt)
+                {
+                    List<Task> bestOrderedTasks2 = ImprovedFindOptimalThroughPZ(tasks);
+                    if (printData) foreach (Task ttt in bestOrderedTasks2) Console.WriteLine(ttt.ToString());
+                    Console.WriteLine("ImprovedOptimalThroughPZ, F = " + F(bestOrderedTasks2));
+                    Console.WriteLine();
+                }
 
             }
         }
@@ -159,7 +160,7 @@ namespace SPD_Lab_WiTi
         {
             List<int> indeces = new List<int>();
             for (int i = 0; i < x; i++) indeces.Add(i);
-            Console.WriteLine("indices count: " + indeces.Count);
+            //Console.WriteLine("indices count: " + indeces.Count);
             return indeces;
         }
         
