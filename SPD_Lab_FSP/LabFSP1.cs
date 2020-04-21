@@ -7,6 +7,56 @@ namespace SPD_Lab_FSP
 {
     class LabFSP1
     {
+        static int n, m; // liczba zadań, liczba maszyn
+
+        public class Operation
+        {
+            public int t, ID, taskID;
+
+            public Operation(int t)
+            {
+                this.t = t;
+            }
+        }
+
+        public class Task
+        {
+            public int ID;
+            public List<Operation> operations = new List<Operation>();
+
+            public Task(int ID)
+            {
+                this.ID = ID;
+            }
+
+            public Task(int ID, List<int> operations)
+            {
+                this.ID = ID;
+                this.operations = new List<Operation>();
+                foreach (int opt in operations) this.operations.Add(new Operation(opt));
+            }
+
+            public override String ToString()
+            {
+                if (operations == null || operations.Count == 0) return "Task ID " + ID  + ": Empty task";
+                String tr = "Task ID " + ID + ": ";
+                foreach (Operation op in operations) tr += op.t + " ";
+
+                return tr;
+            }
+        }
+
+        public class Machine
+        {
+            public int ID;
+            public Operation currentOperation;
+
+            public Machine(int iD)
+            {
+                ID = iD;
+            }
+        }
+
         static void Main(string[] args)
         {
             String p = System.Reflection.Assembly.GetEntryAssembly().Location;
@@ -18,14 +68,14 @@ namespace SPD_Lab_FSP
 
             foreach (String filename in files)
             {
+                List<Machine> machines = new List<Machine>();
+                List<Task> tasks = new List<Task>();
+
                 //Console.WriteLine("\nBeginning file reading ...");
                 String[] lines = File.ReadAllLines(Path.Combine(path, filename));
                 //Console.WriteLine("Read file " + filename + " completed.");
 
-                int k = 1;
-                var tasksG = new TaskPQ();
-                var tasksN = new TaskPQ();
-                for (int i = 1; i < lines.Length; i++)
+                for (int i = 0; i < lines.Length; i++)
                 {
                     lines[i] = lines[i].Replace("\t", " ");
                     RegexOptions options = RegexOptions.None;
@@ -35,13 +85,26 @@ namespace SPD_Lab_FSP
                     if (lines[i].StartsWith("")) lines[i] = lines[i].TrimStart(' ');
 
                     String[] tokens = lines[i].Split(' ');
-                    tasksN.Add(new Task(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2]), 'r'));
+
+                    if(i == 0)
+                    {
+                        n = Int32.Parse(tokens[0]);
+                        m = Int32.Parse(tokens[1]);
+
+                        for (int k = 1; k <= n; k++) tasks.Add(new Task(k));
+                        for (int k = 1; k <= m; k++) machines.Add(new Machine(k));
+                        Console.WriteLine(filename + ": n=" + n + ", m=" + m);
+                    }
+                    else
+                    {
+                        if(tokens.Length > 2)
+                            for (int k = 1; k < 2 * m; k += 2) tasks[i - 1].operations.Add(new Operation(Int32.Parse(tokens[k])));
+                        //tasksN.Add(new Task(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2]), 'r'));
+                    }
                 }
 
-                //Task.PrintTaskList(tasksN); Console.ReadLine();
-                int t = tasksN[0].r;
-                List<Task> tasksPi = new List<Task>();
-
+                foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
+                Console.WriteLine();
 
             }
         }
