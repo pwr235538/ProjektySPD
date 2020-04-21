@@ -10,7 +10,6 @@ namespace SPD_Lab_WiTi
 {
     class LabWiTi1
     {
-
         public class Task : IComparable<Task>
         {
             public int p, w, d;
@@ -24,6 +23,8 @@ namespace SPD_Lab_WiTi
 
             public int CompareTo([AllowNull] Task other)
             {
+                return this.d.CompareTo(other.d);
+
                 if (this.d < other.d) return -1;
                 else if (this.d == other.d) return 0;
                 else return 1;
@@ -32,6 +33,28 @@ namespace SPD_Lab_WiTi
             public override string ToString()
             {
                 return "p=" + p + ", w=" + w + ", d=" + d;
+            }
+
+            public class MyComparer : IComparer<Task>
+            {
+                public int Compare([AllowNull] Task x, [AllowNull] Task y)
+                {
+                    double xdw = (double)x.d / (double)x.w;
+                    double ydw = (double)y.d / (double)y.w;
+
+                    return xdw.CompareTo(ydw);
+                }
+            }
+
+            public class MyComparer2 : IComparer<Task>
+            {
+                public int Compare([AllowNull] Task x, [AllowNull] Task y)
+                {
+                    double xdwp = (double)x.d / (double)x.w * ((double)x.p);
+                    double ydwp = (double)y.d / (double)y.w * ((double)y.p);
+
+                    return xdwp.CompareTo(ydwp);
+                }
             }
         }
 
@@ -95,9 +118,22 @@ namespace SPD_Lab_WiTi
                 }
 
                 foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
+                Console.WriteLine("1234, F = " + F(tasks));
                 Console.WriteLine();
+
                 tasks.Sort();
                 foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
+                Console.WriteLine("SortD, F = " + F(tasks));
+                Console.WriteLine();
+
+                tasks.Sort(new Task.MyComparer());
+                foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
+                Console.WriteLine("My1, F = " + F(tasks));
+                Console.WriteLine();
+
+                tasks.Sort(new Task.MyComparer2());
+                foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
+                Console.WriteLine("My2, F = " + F(tasks));
                 Console.WriteLine();
 
             }
@@ -109,6 +145,20 @@ namespace SPD_Lab_WiTi
             for (int i = 0; i < x; i++) indeces.Add(i);
             Console.WriteLine("indices count: " + indeces.Count);
             return indeces;
+        }
+        
+        public static double F(List<Task> tasks)
+        {
+            double lateSum = 0;
+            int lastEnded = 0;
+            foreach(Task t in tasks)
+            {
+                int endTime = lastEnded + t.p;
+                lateSum += Math.Max(endTime - t.d, 0.0) * t.w;
+                lastEnded = endTime;
+            }
+
+            return lateSum;
         }
     }
 }
