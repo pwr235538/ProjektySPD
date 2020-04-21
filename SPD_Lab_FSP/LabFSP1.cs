@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace SPD_Lab_FSP
 {
     class LabFSP1
     {
-        static int n, m; // liczba zadań, liczba maszyn
 
         public class Operation
         {
@@ -59,15 +60,36 @@ namespace SPD_Lab_FSP
 
         static void Main(string[] args)
         {
+            Stopwatch sw = new Stopwatch();
+
+            sw.Start();
+
+            List<List<int>> combList = PermutationGenerator.Generate(new List<int>() { 1, 2, 3,4,5,6,7,8,9,10 });
+            foreach (List<int> comb in combList)
+            {
+                foreach (int nb in comb) Console.Write(nb);
+                Console.WriteLine();
+            }
+
+            sw.Stop();
+
+            Console.WriteLine("Elapsed={0}", sw.Elapsed);
+
+            Console.ReadLine();
+
+
             String p = System.Reflection.Assembly.GetEntryAssembly().Location;
             p = p.Substring(0, p.IndexOf("SPD_Lab"));
             //Console.WriteLine("Starting ...");
             String path = Path.Combine(p, "SPD_Lab\\Pliki\\fsp");
             //Console.WriteLine("Path: " + path);
-            String[] files = { "data001.txt", "data002.txt", "data003.txt", "data003.txt", "data004.txt", "data005.txt", "data006.txt" };
+            String[] files = { "data001.txt", "data002.txt", "data003.txt", "data003.txt", "data004.txt" };//, "data005.txt", "data006.txt" };
 
             foreach (String filename in files)
             {
+                int n, m; // liczba zadań, liczba maszyn
+
+
                 List<Machine> machines = new List<Machine>();
                 List<Task> tasks = new List<Task>();
 
@@ -94,6 +116,9 @@ namespace SPD_Lab_FSP
                         for (int k = 1; k <= n; k++) tasks.Add(new Task(k));
                         for (int k = 1; k <= m; k++) machines.Add(new Machine(k));
                         Console.WriteLine(filename + ": n=" + n + ", m=" + m);
+                        //Thread T = new Thread(() => PZ(n), stackSizeInBytes);
+                        //T.Start();
+                        PZ(n); 
                     }
                     else
                     {
@@ -107,6 +132,42 @@ namespace SPD_Lab_FSP
                 Console.WriteLine();
 
             }
+        }
+
+        static void PZ(int x)
+        {
+            List<int> indeces = GenerateIndecesList(x);
+            Node head = new Node(-1, indeces);
+            Console.WriteLine("cheeeeck: " + head.index + " " + head.children[0].index);
+            //Console.WriteLine("End nodes number: " + head.CountEndNodes());
+        }
+
+        static void PZ2(int x)
+        {
+            List<int> indeces = GenerateIndecesList(x);
+            Combinations comb;
+
+        }
+
+        static List<List<int>> GetCombinations(int x)
+        {
+            List<List<int>> tr = new List<List<int>>();
+            List<int> indeces = GenerateIndecesList(x);
+
+            for(int i = 0; i < x; i++)
+            {
+
+            }
+
+            return tr;
+        }
+
+        static List<int> GenerateIndecesList(int x)
+        {
+            List<int> indeces = new List<int>();
+            for (int i = 0; i < x; i++) indeces.Add(i);
+            Console.WriteLine("indices count: " + indeces.Count);
+            return indeces;
         }
     }
 }
