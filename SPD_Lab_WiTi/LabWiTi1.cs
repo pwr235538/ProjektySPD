@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace SPD_Lab_WiTi
 {
-    class LabWiTi1
+    public class LabWiTi1
     {
         public class Task : IComparable<Task>
         {
@@ -135,14 +135,21 @@ namespace SPD_Lab_WiTi
                 Console.WriteLine("My1, F = " + F(tasks));
                 Console.WriteLine();
 
-                tasks.Sort(new Task.MyComparer2());
-                foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
-                Console.WriteLine("My2, F = " + F(tasks));
-                Console.WriteLine();
+                // Doesn't work that well:
+                //tasks.Sort(new Task.MyComparer2());
+                //foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
+                //Console.WriteLine("My2, F = " + F(tasks));
+                //Console.WriteLine();
 
-                List<Task> bestOrderedTasks = FindOptimalThroughPZ(tasks);
-                foreach (Task ttt in bestOrderedTasks) Console.WriteLine(ttt.ToString());
-                Console.WriteLine("OptimalThroughPZ, F = " + F(bestOrderedTasks));
+                //Below is a much improved version:
+                //List<Task> bestOrderedTasks = FindOptimalThroughPZ(tasks);
+                //foreach (Task ttt in bestOrderedTasks) Console.WriteLine(ttt.ToString());
+                //Console.WriteLine("OptimalThroughPZ, F = " + F(bestOrderedTasks));
+                //Console.WriteLine();
+
+                List<Task> bestOrderedTasks2 = ImprovedFindOptimalThroughPZ(tasks);
+                foreach (Task ttt in bestOrderedTasks2) Console.WriteLine(ttt.ToString());
+                Console.WriteLine("ImprovedOptimalThroughPZ, F = " + F(bestOrderedTasks2));
                 Console.WriteLine();
 
             }
@@ -205,6 +212,26 @@ namespace SPD_Lab_WiTi
                     bestF = f;
                 }
             }
+
+            sw.Stop();
+            Console.WriteLine("Found best combination, Elapsed={0}", sw.Elapsed);
+
+            List<Task> bestComb = new List<Task>();
+            foreach (int o in bestCombOrder) bestComb.Add(tasks[o]);
+
+            return bestComb;
+        }
+
+        public static List<Task> ImprovedFindOptimalThroughPZ(List<Task> tasks)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+
+            double bestF = double.MaxValue;
+            List<int> bestCombOrder = null;
+
+            PermutationFinder.GenerateAndFindBest(tasks, ref bestCombOrder, ref bestF, GenerateIndecesList(tasks.Count));
 
             sw.Stop();
             Console.WriteLine("Found best combination, Elapsed={0}", sw.Elapsed);
