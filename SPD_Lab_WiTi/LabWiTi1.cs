@@ -83,11 +83,11 @@ namespace SPD_Lab_WiTi
             //Console.WriteLine("Starting ...");
             String path = Path.Combine(p, "SPD_Lab\\Pliki\\witi");
             //Console.WriteLine("Path: " + path);
-            String[] files = { "data10.txt" };//, "data11.txt", "data12.txt", "data13.txt", "data14.txt" };//, "data005.txt", "data006.txt" };
+            String[] files = { "data11.txt" };//, "data11.txt", "data12.txt", "data13.txt", "data14.txt" };//, "data005.txt", "data006.txt" };
 
             foreach (String filename in files)
             {
-                int n, k;
+                int n = 1, k;
                 List<Task> tasks = new List<Task>();
 
                 //Console.WriteLine("\nBeginning file reading ...");
@@ -121,6 +121,10 @@ namespace SPD_Lab_WiTi
                 Console.WriteLine("1234, F = " + F(tasks));
                 Console.WriteLine();
 
+                //foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
+                Console.WriteLine("1234 indices, F = " + F(tasks, GenerateIndecesList(n)));
+                Console.WriteLine();
+
                 tasks.Sort();
                 foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
                 Console.WriteLine("SortD, F = " + F(tasks));
@@ -134,6 +138,11 @@ namespace SPD_Lab_WiTi
                 tasks.Sort(new Task.MyComparer2());
                 foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
                 Console.WriteLine("My2, F = " + F(tasks));
+                Console.WriteLine();
+
+                List<Task> bestOrderedTasks = FindOptimalThroughPZ(tasks);
+                foreach (Task ttt in bestOrderedTasks) Console.WriteLine(ttt.ToString());
+                Console.WriteLine("OptimalThroughPZ, F = " + F(bestOrderedTasks));
                 Console.WriteLine();
 
             }
@@ -159,6 +168,51 @@ namespace SPD_Lab_WiTi
             }
 
             return lateSum;
+        }
+
+        public static double F(List<Task> tasks, List<int> order)
+        {
+            double lateSum = 0;
+            int lastEnded = 0;
+            for(int i = 0; i < order.Count; i++)
+            {
+                int endTime = lastEnded + tasks[order[i]].p;
+                lateSum += Math.Max(endTime - tasks[order[i]].d, 0.0) * tasks[order[i]].w;
+                lastEnded = endTime;
+            }
+
+            return lateSum;
+        }
+
+        public static List<Task> FindOptimalThroughPZ(List<Task> tasks)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            List<List<int>> combinations = PermutationGenerator.Generate(GenerateIndecesList(tasks.Count));
+            
+            Console.WriteLine("Found combinations, Elapsed={0}", sw.Elapsed);
+
+            List<int> bestCombOrder = null;
+            double bestF = double.MaxValue;
+
+            foreach (List<int> order in combinations)
+            {
+                double f = F(tasks, order);
+                if (f < bestF)
+                {
+                    bestCombOrder = order;
+                    bestF = f;
+                }
+            }
+
+            sw.Stop();
+            Console.WriteLine("Found best combination, Elapsed={0}", sw.Elapsed);
+
+            List<Task> bestComb = new List<Task>();
+            foreach (int o in bestCombOrder) bestComb.Add(tasks[o]);
+
+            return bestComb;
         }
     }
 }
