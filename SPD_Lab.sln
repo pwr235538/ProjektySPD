@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.1062
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPD_Lab_1", "SPD_Lab_1\SPD_Lab_1.csproj", "{5294E634-679E-45D4-A613-71B750E4179D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPD_Lab_2", "SPD_Lab_2\SPD_Lab_2.csproj", "{44A5D5CA-34CA-44BA-8E97-2F21E3FA050C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPD_Lab_FSP", "SPD_Lab_FSP\SPD_Lab_FSP.csproj", "{08622F8E-90BA-48A8-A46F-CE5B759EC00E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{44A5D5CA-34CA-44BA-8E97-2F21E3FA050C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44A5D5CA-34CA-44BA-8E97-2F21E3FA050C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44A5D5CA-34CA-44BA-8E97-2F21E3FA050C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08622F8E-90BA-48A8-A46F-CE5B759EC00E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08622F8E-90BA-48A8-A46F-CE5B759EC00E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08622F8E-90BA-48A8-A46F-CE5B759EC00E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08622F8E-90BA-48A8-A46F-CE5B759EC00E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
