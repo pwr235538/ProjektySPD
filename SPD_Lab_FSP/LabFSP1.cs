@@ -12,7 +12,7 @@ namespace SPD_Lab_FSP
 
         public class Operation
         {
-            public int t, ID, taskID;
+            public int t;
 
             public Operation(int t)
             {
@@ -47,55 +47,27 @@ namespace SPD_Lab_FSP
             }
         }
 
-        public class Machine
-        {
-            public int ID;
-            public Operation currentOperation;
-
-            public Machine(int iD)
-            {
-                ID = iD;
-            }
-        }
-
         static void Main(string[] args)
         {
-            Stopwatch sw = new Stopwatch();
-
-            sw.Start();
-
-            List<List<int>> combList = PermutationGenerator.Generate(new List<int>() { 1, 2, 3,4,5,6,7,8,9,10 });
-            foreach (List<int> comb in combList)
-            {
-                foreach (int nb in comb) Console.Write(nb);
-                Console.WriteLine();
-            }
-
-            sw.Stop();
-
-            Console.WriteLine("Elapsed={0}", sw.Elapsed);
-
-            Console.ReadLine();
-
 
             String p = System.Reflection.Assembly.GetEntryAssembly().Location;
             p = p.Substring(0, p.IndexOf("SPD_Lab"));
             //Console.WriteLine("Starting ...");
             String path = Path.Combine(p, "SPD_Lab\\Pliki\\fsp");
             //Console.WriteLine("Path: " + path);
-            String[] files = { "data001.txt", "data002.txt", "data003.txt", "data003.txt", "data004.txt" };//, "data005.txt", "data006.txt" };
+            String[] files = { "data001.txt", "data002.txt", "data003.txt", "data004.txt" };//, "data005.txt", "data006.txt" };
 
             foreach (String filename in files)
             {
-                int n, m; // liczba zadań, liczba maszyn
+                int n = 0, m = 0; // liczba zadań, liczba maszyn
 
 
-                List<Machine> machines = new List<Machine>();
+                //List<Machine> machines = new List<Machine>();
                 List<Task> tasks = new List<Task>();
 
                 //Console.WriteLine("\nBeginning file reading ...");
                 String[] lines = File.ReadAllLines(Path.Combine(path, filename));
-                //Console.WriteLine("Read file " + filename + " completed.");
+                Console.WriteLine("\n=======================================================================\nRead file " + filename + " completed.");
 
                 for (int i = 0; i < lines.Length; i++)
                 {
@@ -114,60 +86,125 @@ namespace SPD_Lab_FSP
                         m = Int32.Parse(tokens[1]);
 
                         for (int k = 1; k <= n; k++) tasks.Add(new Task(k));
-                        for (int k = 1; k <= m; k++) machines.Add(new Machine(k));
+                        //for (int k = 1; k <= m; k++) machines.Add(new Machine(k));
                         Console.WriteLine(filename + ": n=" + n + ", m=" + m);
-                        //Thread T = new Thread(() => PZ(n), stackSizeInBytes);
-                        //T.Start();
-                        PZ(n); 
                     }
                     else
                     {
                         if(tokens.Length > 2)
                             for (int k = 1; k < 2 * m; k += 2) tasks[i - 1].operations.Add(new Operation(Int32.Parse(tokens[k])));
-                        //tasksN.Add(new Task(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2]), 'r'));
                     }
                 }
 
-                foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
-                Console.WriteLine();
+                //foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
+                //Console.WriteLine();
+
+                int Cmax = GetCmax(m, n, tasks);
+                Console.WriteLine("Cmax natural: " + Cmax);
+                List<int> bestCombOrder = new List<int>();
+                var stpw = new Stopwatch();
+                stpw.Start();
+                Cmax = GenerateAndFindBestCmax(m, n, tasks, ref bestCombOrder);
+                stpw.Stop();
+                Console.WriteLine("Cmax opt: " + Cmax);
+                Console.Write("Opt order: "); foreach (int o in bestCombOrder) Console.Write(o + " "); Console.WriteLine();
+                Console.WriteLine("Elapsed={0}", stpw.Elapsed);
 
             }
         }
 
-        static void PZ(int x)
+        static int GetCmax(int m, int n, List<Task> tasks)
         {
-            List<int> indeces = GenerateIndecesList(x);
-            Node head = new Node(-1, indeces);
-            Console.WriteLine("cheeeeck: " + head.index + " " + head.children[0].index);
-            //Console.WriteLine("End nodes number: " + head.CountEndNodes());
+            return GetCmax(m, n, tasks, GenerateIndecesList(n));
         }
 
-        static void PZ2(int x)
+        static int GetCmax(int m, int n, List<Task> tasks, List<int> order)
         {
-            List<int> indeces = GenerateIndecesList(x);
-            Combinations comb;
-
-        }
-
-        static List<List<int>> GetCombinations(int x)
-        {
-            List<List<int>> tr = new List<List<int>>();
-            List<int> indeces = GenerateIndecesList(x);
-
-            for(int i = 0; i < x; i++)
+            int[,] S = new int[m, n];
+            int[,] C = new int[m, n];
+            S[0, 0] = 0;
+            for (int j = 1; j <= n; j++) // wyznaczenie czasow rozpoczecia i zakonczenia operacji na pierwszej maszynie
             {
-
+                C[0, j - 1] = S[0, j - 1] + tasks[order[j - 1]].operations[0].t;
+                if (j < n) S[0, j] = C[0, j - 1];
             }
 
-            return tr;
+            for (int i = 1; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    if (j > 0) S[i, j] = Math.Max(S[i - 1, j], C[i, j - 1]);
+                    else S[i, j] = C[i - 1, j];
+                    C[i, j] = S[i, j] + tasks[order[j]].operations[i].t;
+                }
+            }
+
+            //Console.WriteLine("S[{0},{1}] = {2}", m, n, S[m - 1, n - 1]);
+            //Console.WriteLine("C[{0},{1}] = {2}\n", m, n, C[m - 1, n - 1]);
+
+            return C[m - 1, n - 1];
         }
+
+
 
         static List<int> GenerateIndecesList(int x)
         {
             List<int> indeces = new List<int>();
             for (int i = 0; i < x; i++) indeces.Add(i);
-            Console.WriteLine("indices count: " + indeces.Count);
+            //Console.WriteLine("indices count: " + indeces.Count);
             return indeces;
         }
+
+
+        static class FormPermut
+        {
+            static void SwapTwoNumber(ref int a, ref int b)
+            {
+                int temp = a;
+                a = b;
+                b = temp;
+            }
+
+            public static void CalcPermut(int m, int n, List<Task> tasks, ref List<int> bestCombOrder, ref int bestCmax, int[] list, int k)
+            {
+                int i;
+                if (k == n - 1)
+                {
+                    List<int> nextComb = new List<int>();
+                    for (i = 0; i <= n - 1; i++)
+                    {
+                        nextComb.Add(list[i]);
+                    }
+
+                    int cmax = GetCmax(m, n, tasks, nextComb);
+                    if (cmax < bestCmax)
+                    {
+                        bestCombOrder = nextComb;
+                        bestCmax = cmax;
+                    }
+                    //Console.WriteLine("better");
+                }
+                else
+                    for (i = k; i <= n - 1; i++)
+                    {
+                        SwapTwoNumber(ref list[k], ref list[i]);
+                        CalcPermut(m, n, tasks, ref bestCombOrder, ref bestCmax, list, k + 1);
+                        SwapTwoNumber(ref list[k], ref list[i]);
+                    }
+            }
+        }
+
+        public static int GenerateAndFindBestCmax(int m, int n, List<Task> tasks, ref List<int> bestCombOrder)
+        {
+            int bestCmax = Int32.MaxValue;
+
+            //ormPermut fp = new formPermut();
+            int[] arr1 = GenerateIndecesList(n).ToArray();
+            FormPermut.CalcPermut(m, n, tasks, ref bestCombOrder, ref bestCmax, arr1, 0);
+
+            return bestCmax;
+        }
     }
+
+
 }
