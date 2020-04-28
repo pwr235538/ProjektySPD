@@ -97,7 +97,6 @@ namespace SPD_Lab_WiTi
         {
             formPermut fp = new formPermut();
             int[] arr1 = numbers.ToArray();
-            List<List<int>> combList = new List<List<int>>();
             fp.calcPermut(tasks, ref bestCombOrder, ref bestF, arr1, 0, numbers.Count - 1);
         }
     }

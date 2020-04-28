@@ -83,7 +83,7 @@ namespace SPD_Lab_WiTi
             //Console.WriteLine("Starting ...");
             String path = Path.Combine(p, "SPD_Lab\\Pliki\\witi");
             //Console.WriteLine("Path: " + path);
-            String[] files = { "data13.txt" };//, "data11.txt", "data12.txt", "data13.txt", "data14.txt" };//, "data005.txt", "data006.txt" };
+            String[] files = { "data10.txt", "data11.txt", "data12.txt", "data13.txt", "data14.txt", "data15.txt", "data16.txt", "data17.txt", "data18.txt", "data19.txt", "data20.txt" };//, "data005.txt", "data006.txt" };
 
             foreach (String filename in files)
             {
@@ -117,15 +117,20 @@ namespace SPD_Lab_WiTi
                     }
                 }
 
-                bool printData = false, doopt = true;
+                bool printData = false, doopt = false;
 
                 if (printData) foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
                 Console.WriteLine("1234, F = " + F(tasks));
                 Console.WriteLine();
 
+                Stopwatch sortsw = new Stopwatch();
+                sortsw.Start();
+
                 tasks.Sort();
-                if(printData) foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
                 Console.WriteLine("SortD, F = " + F(tasks));
+                sortsw.Stop();
+                Console.WriteLine("SortD, time = " + sortsw.Elapsed);
+                if (printData) foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
                 Console.WriteLine();
 
                 tasks.Sort(new Task.MyComparer());
@@ -197,14 +202,14 @@ namespace SPD_Lab_WiTi
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            List<List<int>> combinations = PermutationGenerator.Generate(GenerateIndecesList(tasks.Count));
+            List<List<int>> combinations = PermutationGenerator.Generate(GenerateIndecesList(tasks.Count)); //Lista wszystkich możliwych permutacji
             
             Console.WriteLine("Found combinations, Elapsed={0}", sw.Elapsed);
 
             List<int> bestCombOrder = null;
             double bestF = double.MaxValue;
 
-            foreach (List<int> order in combinations)
+            foreach (List<int> order in combinations) // sprwadzanie po kolei każdej permutacji
             {
                 double f = F(tasks, order);
                 if (f < bestF)
@@ -223,7 +228,7 @@ namespace SPD_Lab_WiTi
             return bestComb;
         }
 
-        public static List<Task> ImprovedFindOptimalThroughPZ(List<Task> tasks)
+        public static List<Task> ImprovedFindOptimalThroughPZ(List<Task> tasks) // wersja bez zapamietywania permutacji tj. sprwadzenie > zapisanie wyniku funkcji F > zapomnienie > kolejna
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
