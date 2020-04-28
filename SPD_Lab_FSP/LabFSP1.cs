@@ -12,11 +12,11 @@ namespace SPD_Lab_FSP
 
         public class Operation
         {
-            public int t;
+            public int p;
 
             public Operation(int t)
             {
-                this.t = t;
+                this.p = t;
             }
         }
 
@@ -41,7 +41,7 @@ namespace SPD_Lab_FSP
             {
                 if (operations == null || operations.Count == 0) return "Task ID " + ID  + ": Empty task";
                 String tr = "Task ID " + ID + ": ";
-                foreach (Operation op in operations) tr += op.t + " ";
+                foreach (Operation op in operations) tr += op.p + " ";
 
                 return tr;
             }
@@ -61,8 +61,6 @@ namespace SPD_Lab_FSP
             {
                 int n = 0, m = 0; // liczba zadań, liczba maszyn
 
-
-                //List<Machine> machines = new List<Machine>();
                 List<Task> tasks = new List<Task>();
 
                 //Console.WriteLine("\nBeginning file reading ...");
@@ -86,7 +84,6 @@ namespace SPD_Lab_FSP
                         m = Int32.Parse(tokens[1]);
 
                         for (int k = 1; k <= n; k++) tasks.Add(new Task(k));
-                        //for (int k = 1; k <= m; k++) machines.Add(new Machine(k));
                         Console.WriteLine(filename + ": n=" + n + ", m=" + m);
                     }
                     else
@@ -96,19 +93,28 @@ namespace SPD_Lab_FSP
                     }
                 }
 
-                //foreach (Task ttt in tasks) Console.WriteLine(ttt.ToString());
-                //Console.WriteLine();
+                var stpw = new Stopwatch();
 
+                // Kolejnosc naturalna:
                 int Cmax = GetCmax(m, n, tasks);
                 Console.WriteLine("Cmax natural: " + Cmax);
-                List<int> bestCombOrder = new List<int>();
-                var stpw = new Stopwatch();
+
+                // Algorytm Johnsona:
+                List<int> johnsonOrder = new List<int>();
                 stpw.Start();
+                Console.WriteLine("Cmax Johnson: " + GetCmax(m, n, GetInJohnsonOrder(m,n,tasks, ref johnsonOrder)));
+                stpw.Stop();
+                Console.Write("Johnson order: "); foreach (int o in johnsonOrder) Console.Write(o + " "); Console.WriteLine();
+                Console.WriteLine("Johnson elapsed={0}", stpw.Elapsed);
+
+                // Przeglad zupelny - rozwiazanie optymalne:
+                List<int> bestCombOrder = new List<int>();
+                stpw.Restart();
                 Cmax = GenerateAndFindBestCmax(m, n, tasks, ref bestCombOrder);
                 stpw.Stop();
                 Console.WriteLine("Cmax opt: " + Cmax);
                 Console.Write("Opt order: "); foreach (int o in bestCombOrder) Console.Write(o + " "); Console.WriteLine();
-                Console.WriteLine("Elapsed={0}", stpw.Elapsed);
+                Console.WriteLine("Opt elapsed={0}", stpw.Elapsed);
 
             }
         }
@@ -125,7 +131,7 @@ namespace SPD_Lab_FSP
             S[0, 0] = 0;
             for (int j = 1; j <= n; j++) // wyznaczenie czasow rozpoczecia i zakonczenia operacji na pierwszej maszynie
             {
-                C[0, j - 1] = S[0, j - 1] + tasks[order[j - 1]].operations[0].t;
+                C[0, j - 1] = S[0, j - 1] + tasks[order[j - 1]].operations[0].p;
                 if (j < n) S[0, j] = C[0, j - 1];
             }
 
@@ -135,7 +141,7 @@ namespace SPD_Lab_FSP
                 {
                     if (j > 0) S[i, j] = Math.Max(S[i - 1, j], C[i, j - 1]);
                     else S[i, j] = C[i - 1, j];
-                    C[i, j] = S[i, j] + tasks[order[j]].operations[i].t;
+                    C[i, j] = S[i, j] + tasks[order[j]].operations[i].p;
                 }
             }
 
@@ -143,6 +149,58 @@ namespace SPD_Lab_FSP
             //Console.WriteLine("C[{0},{1}] = {2}\n", m, n, C[m - 1, n - 1]);
 
             return C[m - 1, n - 1];
+        }
+
+        static List<Task> GetInJohnsonOrder(int m, int n, List<Task> tasks, ref List<int> optOrder)
+        {
+            List<Task> ordered = new List<Task>(new Task[n]);
+
+
+            List<Task> N = new List<Task>(tasks); //kopia
+
+            int l = 1, k = n;
+
+            while(N.Count > 0)
+            {
+                int pmin = Int32.MaxValue, imin = -1, jmin = -1;
+
+                // l6 > start
+                for(int i = 0; i < m; i++)
+                {
+                    for(int j = 0; j < N.Count; j++)
+                    {
+                        //Console.WriteLine("j={0}, i={1}", j, i);
+                        if(N[j].operations[i].p < pmin)
+                        {
+                            pmin = N[j].operations[i].p;
+                            imin = i; jmin = j;
+                        }
+                    }
+                }
+                // l6 > end
+
+                if(N[jmin].operations[0].p < N[jmin].operations[1].p) // l7
+                {
+                    ordered[l - 1] = N[jmin]; // l8
+                    //Console.WriteLine("insert at {0}, task: {1}", l - 1, N[jmin]);
+                    l++; //l9
+                }
+                else // l10
+                {
+                    ordered[k - 1] = N[jmin]; // l11
+                    //Console.WriteLine("insert at {0}, task: {1}", k - 1, N[jmin]);
+                    k--; // l12
+                }
+
+                N.RemoveAt(jmin); // l14
+            }
+
+            // PrintTasks(ordered);
+            //Console.ReadLine();
+
+            foreach (Task t in ordered) optOrder.Add(tasks.IndexOf(t));
+
+            return ordered;
         }
 
 
@@ -153,6 +211,17 @@ namespace SPD_Lab_FSP
             for (int i = 0; i < x; i++) indeces.Add(i);
             //Console.WriteLine("indices count: " + indeces.Count);
             return indeces;
+        }
+
+        static void PrintTasks(List<Task> tasks)
+        {
+            for(int i = 0; i < tasks.Count; i++)
+            {
+                Console.Write("Task {0}: ", i);
+                for (int j = 0; j < tasks[i].operations.Count; j++)
+                    Console.Write("{0} ", tasks[i].operations[j].p);
+                Console.WriteLine();
+            }
         }
 
 
