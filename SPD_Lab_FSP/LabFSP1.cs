@@ -55,7 +55,7 @@ namespace SPD_Lab_FSP
             //Console.WriteLine("Starting ...");
             String path = Path.Combine(p, "SPD_Lab\\Pliki\\fsp");
             //Console.WriteLine("Path: " + path);
-            String[] files = { "data001.txt", "data002.txt", "data003.txt", "data004.txt" };//, "data005.txt", "data006.txt" };
+            String[] files = { "data001.txt", "data002.txt", "data003.txt", "data004.txt", "data005.txt", "data006.txt" };// };
 
             foreach (String filename in files)
             {
@@ -67,6 +67,7 @@ namespace SPD_Lab_FSP
                 String[] lines = File.ReadAllLines(Path.Combine(path, filename));
                 Console.WriteLine("\n=======================================================================\nRead file " + filename + " completed.");
 
+                // wczytywanie i przetwarzanie danych - początek
                 for (int i = 0; i < lines.Length; i++)
                 {
                     lines[i] = lines[i].Replace("\t", " ");
@@ -91,7 +92,7 @@ namespace SPD_Lab_FSP
                         if(tokens.Length > 2)
                             for (int k = 1; k < 2 * m; k += 2) tasks[i - 1].operations.Add(new Operation(Int32.Parse(tokens[k])));
                     }
-                }
+                } // wczytywanie i przetwarzanie danych - koniec
 
                 var stpw = new Stopwatch();
 
@@ -107,14 +108,18 @@ namespace SPD_Lab_FSP
                 Console.Write("Johnson order: "); foreach (int o in johnsonOrder) Console.Write(o + " "); Console.WriteLine();
                 Console.WriteLine("Johnson elapsed={0}", stpw.Elapsed);
 
-                // Przeglad zupelny - rozwiazanie optymalne:
-                List<int> bestCombOrder = new List<int>();
-                stpw.Restart();
-                Cmax = GenerateAndFindBestCmax(m, n, tasks, ref bestCombOrder);
-                stpw.Stop();
-                Console.WriteLine("Cmax opt: " + Cmax);
-                Console.Write("Opt order: "); foreach (int o in bestCombOrder) Console.Write(o + " "); Console.WriteLine();
-                Console.WriteLine("Opt elapsed={0}", stpw.Elapsed);
+                // czy odpalac wersje z przegladem zupelnym (brute force)
+                if(false)
+                {
+                    // Przeglad zupelny - rozwiazanie optymalne:
+                    List<int> bestCombOrder = new List<int>();
+                    stpw.Restart();
+                    Cmax = GenerateAndFindBestCmax(m, n, tasks, ref bestCombOrder);
+                    stpw.Stop();
+                    Console.WriteLine("Cmax opt: " + Cmax);
+                    Console.Write("Opt order: "); foreach (int o in bestCombOrder) Console.Write(o + " "); Console.WriteLine();
+                    Console.WriteLine("Opt elapsed={0}", stpw.Elapsed);
+                }
 
             }
         }
@@ -135,18 +140,16 @@ namespace SPD_Lab_FSP
                 if (j < n) S[0, j] = C[0, j - 1];
             }
 
-            for (int i = 1; i < m; i++)
+            //Dalsza część algorytmu dla pozostałych maszyn
+            for (int i = 1; i < m; i++) // iterowanie po maszynach/operacjach
             {
-                for (int j = 0; j < n; j++)
+                for (int j = 0; j < n; j++) // iterowanie po zadaniach
                 {
-                    if (j > 0) S[i, j] = Math.Max(S[i - 1, j], C[i, j - 1]);
-                    else S[i, j] = C[i - 1, j];
-                    C[i, j] = S[i, j] + tasks[order[j]].operations[i].p;
+                    if (j > 0) S[i, j] = Math.Max(C[i - 1, j], C[i, j - 1]); // zakonczenie poprzedniej operacji tego samego zadania lub zakonczenie tej samej operacji poprzedniego zadania
+                    else S[i, j] = C[i - 1, j]; // zakonczenie poprzedniej operacji tego samego zadania gdy jest to pierwsze zadanie (żeby nie wychodzic poza zakres tablicy)
+                    C[i, j] = S[i, j] + tasks[order[j]].operations[i].p; // wyznaczenie czasu zakończenia przed dodanie czasu trwania operacji
                 }
             }
-
-            //Console.WriteLine("S[{0},{1}] = {2}", m, n, S[m - 1, n - 1]);
-            //Console.WriteLine("C[{0},{1}] = {2}\n", m, n, C[m - 1, n - 1]);
 
             return C[m - 1, n - 1];
         }
@@ -182,13 +185,11 @@ namespace SPD_Lab_FSP
                 if(N[jmin].operations[0].p < N[jmin].operations[1].p) // l7
                 {
                     ordered[l - 1] = N[jmin]; // l8
-                    //Console.WriteLine("insert at {0}, task: {1}", l - 1, N[jmin]);
                     l++; //l9
                 }
                 else // l10
                 {
                     ordered[k - 1] = N[jmin]; // l11
-                    //Console.WriteLine("insert at {0}, task: {1}", k - 1, N[jmin]);
                     k--; // l12
                 }
 
